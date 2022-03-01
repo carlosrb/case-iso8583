@@ -1,0 +1,42 @@
+logging:
+  level:
+    test.crbm.transaction: DEBUG
+
+spring:   
+  ## Spring RabbitMQ
+  rabbitmq:
+   
+    addresses: localhost:5672
+    username: guest
+    password: guest
+    
+    publisher-confirms: true
+    publisher-returns: true
+    #ssh:
+    #  enabled: true    
+    listener:
+      type: simple
+      simple:
+        acknowledge-mode: MANUAL
+        auto-startup: true
+        prefetch: 1
+        concurrency: 1
+        retry:
+          enabled: true
+          initial-interval: 1s
+          max-attempts: 2
+          max-interval: 4s
+          multiplier: 2
+          
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update    
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: guest
+    
