@@ -35,7 +35,7 @@ spring:
       ddl-auto: update    
   datasource:
     platform: postgres
-    url: jdbc:postgresql://database-case-itau.ckbj2yhrnzga.us-east-2.rds.amazonaws.com:5432/postgres
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: eusoumaisitau
+    password: test
     
