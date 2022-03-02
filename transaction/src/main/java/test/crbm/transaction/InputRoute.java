@@ -41,30 +41,11 @@ public class InputRoute {
     @Autowired
     private InputMessageRepository inputMessagerepository;
 
-    //@Autowired
-    //private RabbitTemplate rabbitTemplate;
     @Bean
     public Binding transactionInBinding(
             @Qualifier("transactionInQueue") Queue queue,
             @Qualifier("transactionExchange") Exchange exchange) throws ISOException {
 
-        /*ISOMsg isoMsg = new ISOMsg();
-        //isoMsg.setPackager(packager);
-        isoMsg.setMTI("0200");
-
-        isoMsg.set(3, "000010");
-        isoMsg.set(4, "1500");
-        isoMsg.set(7, "1206041200");
-        isoMsg.set(11, "000001");
-        isoMsg.set(41, "12340001");
-        isoMsg.set(49, "840");
-
-        System.out.printf("MTI = %s%n", isoMsg.getMTI());
-        for (int i = 1; i <= isoMsg.getMaxField(); i++) {
-            if (isoMsg.hasField(i)) {
-                System.out.printf("Field (%s) = %s%n", i, isoMsg.getString(i));
-            }
-        }*/
         final HashMap<String, Object> bindArgs = new HashMap<>();
 
         return new Binding(queue.getName(),
@@ -83,11 +64,12 @@ public class InputRoute {
         JsonNode jsonNode = objectMapper.readTree(message.getBody());
         LOGGER.debug("{}", jsonNode);
 
-        Map<String, String> jsonMsg 
+        Map<String, String> jsonMsg
                 = objectMapper.readValue(jsonNode.traverse(), Map.class);
         LOGGER.debug("{}", jsonMsg);
 
-        GenericPackager packager = new GenericPackager("/home/carlos/projects/transaction/src/main/resources/iso93ascii.xml");
+        GenericPackager packager = new GenericPackager(
+                getClass().getResource("/iso87ascii.xml").openStream());
         ISOMsg isoMsg = new ISOMsg();
         isoMsg.setPackager(packager);
 
@@ -106,12 +88,6 @@ public class InputRoute {
 
         String isoStrMsg = new String(binary, Charset.defaultCharset());
         LOGGER.debug("{}", isoStrMsg);
-        
-        //ISOMsg unpack = new ISOMsg();
-        //unpack.setPackager(packager);
-        //unpack.unpack(isoMsg.pack());
-
-        //LOGGER.debug("{}", unpack.getMTI());
 
         InputMessage inputMessage = new InputMessage();
         inputMessage.setDateTime(OffsetDateTime.now());
@@ -119,7 +95,7 @@ public class InputRoute {
         inputMessage.setIso(isoStrMsg);
 
         inputMessagerepository.save(inputMessage);
-                
+
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),
                 false);
     }
